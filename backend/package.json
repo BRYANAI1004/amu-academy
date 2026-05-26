@@ -1,0 +1,26 @@
+{
+  "name": "amu-academy-backend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "start": "wrangler dev --port 8787",
+    "stop": "kill-port 8787",
+    "restart": "npm stop --if-present && npm start",
+    "build": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "db:seed": "tsx scripts/seed.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.8",
+    "hono": "^4.7.10"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250525.0",
+    "kill-port": "^2.0.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.19.1"
+  }
+}
