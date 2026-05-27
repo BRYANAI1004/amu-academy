@@ -42,6 +42,7 @@ export const seedCourses: Course[] = [
     category: 'Clinical Documentation',
     shortDescription:
       'Master documentation standards and admission workflows for acute care settings.',
+    instructor: null,
     description:
       'Master the standards and best practices for clinical documentation and patient admission workflows across acute care environments.',
     overview:
@@ -120,6 +121,7 @@ export const seedCourses: Course[] = [
     category: 'Clinical Documentation',
     shortDescription:
       'Learn core principles for evaluating and documenting medical necessity in clinical reviews.',
+    instructor: null,
     description:
       'Build practical skills for medical necessity review, payer alignment, and defensible clinical documentation.',
     overview:
@@ -176,6 +178,7 @@ export const seedCourses: Course[] = [
     category: 'Healthcare Operations',
     shortDescription:
       'Core operational concepts for medical teams managing day-to-day healthcare delivery.',
+    instructor: null,
     description:
       'An introduction to healthcare operations, workflow coordination, and team-based service delivery.',
     overview: 'Operational foundations for healthcare teams — scheduling, handoffs, and coordination.',
@@ -203,6 +206,7 @@ export const seedCourses: Course[] = [
     title: 'Revenue Cycle Basics for Medical Teams',
     category: 'Healthcare Operations',
     shortDescription: 'Foundational revenue cycle concepts for clinical and operational staff.',
+    instructor: null,
     description:
       'Learn how clinical documentation, coding, and billing workflows connect in the healthcare revenue cycle.',
     overview: 'Cross-functional awareness of revenue cycle stages and documentation impact.',
@@ -229,6 +233,7 @@ export const seedCourses: Course[] = [
     title: 'Leadership Communication in Clinical Settings',
     category: 'Medical Leadership',
     shortDescription: 'Communication strategies for clinical leaders and interdisciplinary teams.',
+    instructor: null,
     description:
       'Develop leadership communication skills for high-stakes clinical environments and team alignment.',
     overview: 'Communication frameworks for clinical leaders under pressure.',

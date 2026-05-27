@@ -1,20 +1,48 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Pencil, Plus } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { formatCoursePrice } from '../../data/courses'
-import { adminGetCourses, type ApiCourse } from '../../lib/api'
+import { adminDeleteCourse, adminGetCourses, type ApiCourse } from '../../lib/api'
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState<ApiCourse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [deletingCourseId, setDeletingCourseId] = useState<string | null>(null)
+
+  const refetchCourses = useCallback(async () => {
+    const data = await adminGetCourses()
+    setCourses(data)
+    return data
+  }, [])
 
   useEffect(() => {
-    adminGetCourses()
-      .then(setCourses)
+    refetchCourses()
       .catch(() => setError('Could not load courses from the API.'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [refetchCourses])
+
+  async function handleDeleteCourse(course: ApiCourse) {
+    const confirmed = window.confirm(
+      'Delete this course? This will remove the course and its lesson metadata. Cloudflare Stream videos may still remain in your Stream account.',
+    )
+    if (!confirmed) return
+
+    setDeletingCourseId(course.id)
+    setError(null)
+    setSuccessMessage(null)
+
+    try {
+      await adminDeleteCourse(course.id)
+      await refetchCourses()
+      setSuccessMessage(`"${course.title}" was deleted.`)
+    } catch {
+      setError('Could not delete course.')
+    } finally {
+      setDeletingCourseId(null)
+    }
+  }
 
   return (
     <div className="admin-content">
@@ -32,6 +60,12 @@ export default function AdminCoursesPage() {
       {error && (
         <p className="admin-note admin-note--error" role="alert">
           {error}
+        </p>
+      )}
+
+      {successMessage && (
+        <p className="admin-note admin-note--success" role="status">
+          {successMessage}
         </p>
       )}
 
@@ -75,9 +109,20 @@ export default function AdminCoursesPage() {
                         <Pencil size={15} aria-hidden="true" />
                         Edit
                       </Link>
-                      <Link to={`/admin/courses/${course.id}/lessons`} className="admin-table__action">
+                      <Link to={`/admin/courses/${course.id}/edit?tab=lessons`} className="admin-table__action">
                         Lessons
                       </Link>
+                      <button
+                        type="button"
+                        className="admin-table__action admin-table__action--button admin-table__action--danger"
+                        disabled={deletingCourseId === course.id}
+                        onClick={() => {
+                          void handleDeleteCourse(course)
+                        }}
+                      >
+                        <Trash2 size={15} aria-hidden="true" />
+                        {deletingCourseId === course.id ? 'Deleting…' : 'Delete'}
+                      </button>
                     </div>
                   </td>
                 </tr>

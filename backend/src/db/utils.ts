@@ -21,6 +21,20 @@ export function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
 }
 
+export function sortCoursesByRecency<T extends { updatedAt: string; createdAt: string; title: string }>(
+  courses: T[],
+): T[] {
+  return [...courses].sort((a, b) => {
+    const updatedDiff = Date.parse(b.updatedAt) - Date.parse(a.updatedAt)
+    if (updatedDiff !== 0) return updatedDiff
+
+    const createdDiff = Date.parse(b.createdAt) - Date.parse(a.createdAt)
+    if (createdDiff !== 0) return createdDiff
+
+    return a.title.localeCompare(b.title)
+  })
+}
+
 export async function uniqueSlug(
   client: ReturnType<typeof import('../supabase').createSupabaseClient>,
   base: string,
@@ -31,6 +45,28 @@ export async function uniqueSlug(
 
   while (true) {
     let query = client.from('courses').select('id').eq('slug', slug).limit(1)
+    if (excludeId) {
+      query = query.neq('id', excludeId)
+    }
+
+    const { data, error } = await query
+    if (error) throw error
+    if (!data || data.length === 0) return slug
+
+    slug = `${base}-${n++}`
+  }
+}
+
+export async function uniqueCategorySlug(
+  client: ReturnType<typeof import('../supabase').createSupabaseClient>,
+  base: string,
+  excludeId?: string,
+): Promise<string> {
+  let slug = base
+  let n = 1
+
+  while (true) {
+    let query = client.from('categories').select('id').eq('slug', slug).limit(1)
     if (excludeId) {
       query = query.neq('id', excludeId)
     }

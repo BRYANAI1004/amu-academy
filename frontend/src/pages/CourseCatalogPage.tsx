@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { BookOpen, Clock } from 'lucide-react'
+import { BookOpen, UserRound } from 'lucide-react'
 import PortalHeader from '../components/PortalHeader'
-import { CATEGORIES, formatCoursePrice, type CourseCategory } from '../data/courses'
-import { getCourses, getCoursesFallback, type ApiCourseSummary } from '../lib/api'
+import { formatCoursePrice } from '../data/courses'
+import { getCategories, getCategoriesFallback, getCourses, getCoursesFallback, type ApiCategory, type ApiCourseSummary } from '../lib/api'
 
-type FilterCategory = CourseCategory | 'All'
+type FilterCategory = string | 'All'
 
 export default function CourseCatalogPage() {
   const [activeCategory, setActiveCategory] = useState<FilterCategory>('All')
@@ -13,6 +13,7 @@ export default function CourseCatalogPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [usedFallback, setUsedFallback] = useState(false)
+  const [categories, setCategories] = useState<ApiCategory[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -21,13 +22,15 @@ export default function CourseCatalogPage() {
       setLoading(true)
       setError(null)
       try {
-        const data = await getCourses()
+        const [courseData, categoryData] = await Promise.all([getCourses(), getCategories()])
         if (cancelled) return
-        setCourses(data)
+        setCourses(courseData)
+        setCategories(categoryData)
         setUsedFallback(false)
       } catch {
         if (cancelled) return
         setCourses(getCoursesFallback())
+        setCategories(getCategoriesFallback())
         setUsedFallback(true)
         setError('Could not reach the academy API. Showing cached catalog data.')
       } finally {
@@ -47,15 +50,21 @@ export default function CourseCatalogPage() {
   }, [courses, activeCategory])
 
   return (
-    <div className="portal-page">
+    <div className="portal-page amu-gradient-page">
+      <div className="login-gradient-art" aria-hidden="true">
+        <span className="login-blob login-blob--yellow" />
+        <span className="login-blob login-blob--orange" />
+        <span className="login-blob login-blob--peach" />
+        <span className="login-blob login-blob--pink" />
+        <span className="login-blob login-blob--lavender" />
+        <span className="login-blob login-blob--red" />
+      </div>
+
       <PortalHeader />
 
-      <main className="portal-main">
+      <main className="portal-main course-catalog-content">
         <section className="catalog-hero">
           <h1 className="catalog-hero__title">Online Academy</h1>
-          <p className="catalog-hero__subtitle">
-            Professional online courses for healthcare learners and medical teams.
-          </p>
         </section>
 
         {error && (
@@ -80,16 +89,16 @@ export default function CourseCatalogPage() {
           >
             All
           </button>
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <button
-              key={category}
+              key={category.id}
               type="button"
               role="tab"
-              aria-selected={activeCategory === category}
-              className={`catalog-filter ${activeCategory === category ? 'catalog-filter--active' : ''}`}
-              onClick={() => setActiveCategory(category)}
+              aria-selected={activeCategory === category.name}
+              className={`catalog-filter ${activeCategory === category.name ? 'catalog-filter--active' : ''}`}
+              onClick={() => setActiveCategory(category.name)}
             >
-              {category}
+              {category.name}
             </button>
           ))}
         </div>
@@ -106,41 +115,66 @@ export default function CourseCatalogPage() {
           <div className="course-grid">
             {filteredCourses.map((course) => {
               const isAvailable = course.status === 'available'
+              const cardClassName = [
+                'course-card',
+                !isAvailable ? 'course-card--coming-soon' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')
 
               return (
-                <article key={course.id} className="course-card">
-                  <div className="course-card__top">
-                    <span className="course-card__category">{course.category}</span>
-                    <span
-                      className={`course-card__status ${isAvailable ? 'course-card__status--available' : 'course-card__status--soon'}`}
-                    >
-                      {isAvailable ? 'Available' : 'Coming soon'}
-                    </span>
+                <article key={course.id} className={cardClassName}>
+                  <div className="course-card__cover-wrap">
+                    {course.coverImageUrl ? (
+                      <img
+                        src={course.coverImageUrl}
+                        alt=""
+                        className="course-card__cover"
+                      />
+                    ) : (
+                      <div className="course-card__cover-placeholder" aria-hidden="true" />
+                    )}
                   </div>
 
-                  <h2 className="course-card__title">{course.title}</h2>
-                  <p className="course-card__description">{course.shortDescription}</p>
+                  <div className="course-card__body">
+                    <h2 className="course-card__title">{course.title}</h2>
 
-                  <div className="course-card__meta">
-                    <span className="course-card__meta-item">
-                      <BookOpen size={15} aria-hidden="true" />
-                      {course.lessonCount} lessons
-                    </span>
-                    <span className="course-card__meta-item">
-                      <Clock size={15} aria-hidden="true" />
-                      {formatCoursePrice(course.price)}
-                    </span>
+                    {course.shortDescription && (
+                      <p className="course-card__description">{course.shortDescription}</p>
+                    )}
+
+                    <p className="course-card__meta">
+                      <span className="course-card__meta-item">
+                        <BookOpen size={14} className="course-card__meta-icon" aria-hidden="true" />
+                        {course.lessonCount} {course.lessonCount === 1 ? 'lesson' : 'lessons'}
+                      </span>
+                      {course.instructor && (
+                        <>
+                          <span className="course-card__meta-separator" aria-hidden="true">
+                            ·
+                          </span>
+                          <span className="course-card__meta-item course-card__meta-instructor">
+                            <UserRound size={14} className="course-card__meta-icon" aria-hidden="true" />
+                            {course.instructor}
+                          </span>
+                        </>
+                      )}
+                      <span className="course-card__meta-separator" aria-hidden="true">
+                        ·
+                      </span>
+                      <span className="course-card__meta-price">{formatCoursePrice(course.price)}</span>
+                    </p>
+
+                    {isAvailable ? (
+                      <Link to={`/courses/${course.id}`} className="btn btn-primary course-card__btn">
+                        View course
+                      </Link>
+                    ) : (
+                      <button type="button" className="btn btn-primary course-card__btn" disabled>
+                        Coming soon
+                      </button>
+                    )}
                   </div>
-
-                  {isAvailable ? (
-                    <Link to={`/courses/${course.id}`} className="btn btn-primary course-card__btn">
-                      View course
-                    </Link>
-                  ) : (
-                    <button type="button" className="btn btn-secondary course-card__btn" disabled>
-                      Coming soon
-                    </button>
-                  )}
                 </article>
               )
             })}

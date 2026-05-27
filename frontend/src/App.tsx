@@ -8,8 +8,10 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminCoursesPage from './pages/admin/AdminCoursesPage'
 import AdminCourseNewPage from './pages/admin/AdminCourseNewPage'
 import AdminCourseEditPage from './pages/admin/AdminCourseEditPage'
+import AdminCourseManagePage from './pages/admin/AdminCourseManagePage'
 import AdminCourseLessonsPage from './pages/admin/AdminCourseLessonsPage'
 import AdminLessonEditPage from './pages/admin/AdminLessonEditPage'
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage'
 import { DEFAULT_LEARN_COURSE_ID } from './data/courses'
 
 export default function App() {
@@ -24,8 +26,10 @@ export default function App() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboardPage />} />
         <Route path="courses" element={<AdminCoursesPage />} />
+        <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="courses/new" element={<AdminCourseNewPage />} />
         <Route path="courses/:courseId/edit" element={<AdminCourseEditPage />} />
+        <Route path="courses/:courseId/manage" element={<AdminCourseManagePage />} />
         <Route path="courses/:courseId/lessons" element={<AdminCourseLessonsPage />} />
         <Route path="lessons/:lessonId/edit" element={<AdminLessonEditPage />} />
       </Route>

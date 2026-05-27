@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import AdminLessonForm, { emptyLessonForm } from '../../components/AdminLessonForm'
+import AdminLessonVideoUpload from '../../components/AdminLessonVideoUpload'
 import {
   adminCreateLesson,
   adminFindLesson,
@@ -56,7 +57,7 @@ export default function AdminLessonEditPage() {
     setError(null)
     try {
       await adminCreateLesson(course.id, lessonFormToInput(data))
-      navigate(`/admin/courses/${course.id}/lessons`)
+      navigate(`/admin/courses/${course.id}/edit?tab=lessons`)
     } catch {
       setError('Could not create lesson.')
       setSaving(false)
@@ -69,7 +70,7 @@ export default function AdminLessonEditPage() {
     setError(null)
     try {
       await adminUpdateLesson(lesson.id, lessonFormToInput(data))
-      navigate(`/admin/courses/${course.id}/lessons`)
+      navigate(`/admin/courses/${course.id}/edit?tab=lessons`)
     } catch {
       setError('Could not save lesson changes.')
       setSaving(false)
@@ -109,7 +110,7 @@ export default function AdminLessonEditPage() {
             <h1 className="admin-page-head__title">Create lesson</h1>
             <p className="admin-page-head__subtitle">{course.title}</p>
           </div>
-          <Link to={`/admin/courses/${course.id}/lessons`} className="admin-link-back">
+          <Link to={`/admin/courses/${course.id}/edit?tab=lessons`} className="admin-link-back">
             ← Back to lessons
           </Link>
         </div>
@@ -155,7 +156,7 @@ export default function AdminLessonEditPage() {
             {course.title} · Lesson {lesson.sortOrder}
           </p>
         </div>
-        <Link to={`/admin/courses/${course.id}/lessons`} className="admin-link-back">
+        <Link to={`/admin/courses/${course.id}/edit?tab=lessons`} className="admin-link-back">
           ← Back to lessons
         </Link>
       </div>
@@ -173,6 +174,14 @@ export default function AdminLessonEditPage() {
           onSubmit={(data) => {
             void handleUpdate(data)
           }}
+        />
+      </div>
+
+      <div className="admin-panel admin-panel--video">
+        <AdminLessonVideoUpload
+          lessonId={lesson.id}
+          lesson={lesson}
+          onLessonUpdated={setLesson}
         />
       </div>
     </div>

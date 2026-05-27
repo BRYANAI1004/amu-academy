@@ -1,5 +1,4 @@
 import { type FormEvent, useState } from 'react'
-import { Upload } from 'lucide-react'
 import type { LessonFormData } from '../lib/api'
 
 interface AdminLessonFormProps {
@@ -87,15 +86,6 @@ export default function AdminLessonForm({ initial, submitLabel, onSubmit }: Admi
           />
         </label>
       </div>
-
-      <section className="admin-upload-placeholder" aria-label="Video upload placeholder">
-        <Upload size={28} aria-hidden="true" />
-        <h2>Video upload</h2>
-        <p>Cloudflare Stream integration will be connected in the next phase.</p>
-        <button type="button" className="btn btn-secondary" disabled>
-          Upload video (coming soon)
-        </button>
-      </section>
 
       <div className="admin-form__actions">
         <button type="submit" className="btn btn-primary">

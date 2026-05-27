@@ -1,15 +1,30 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   CheckCircle2,
   ChevronRight,
-  Lock,
   Play,
   Target,
 } from 'lucide-react'
 import PortalHeader from '../components/PortalHeader'
-import { isEnrolled } from '../lib/enrollment'
 import { getCourse, getCourseFallback, type ApiCourse, type ApiLesson } from '../lib/api'
+import { canPlayStreamLesson, isStreamVideoProcessing } from '../lib/streamPlayback'
+
+function AmuGradientShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="portal-page amu-gradient-page learn-page">
+      <div className="login-gradient-art" aria-hidden="true">
+        <span className="login-blob login-blob--yellow" />
+        <span className="login-blob login-blob--orange" />
+        <span className="login-blob login-blob--peach" />
+        <span className="login-blob login-blob--pink" />
+        <span className="login-blob login-blob--lavender" />
+        <span className="login-blob login-blob--red" />
+      </div>
+      {children}
+    </div>
+  )
+}
 
 export default function LearnPage() {
   const { courseId = '' } = useParams()
@@ -48,20 +63,20 @@ export default function LearnPage() {
 
   if (loading) {
     return (
-      <div className="learn-page">
+      <AmuGradientShell>
         <PortalHeader />
         <main className="portal-main portal-main--narrow">
           <div className="portal-empty">
             <p>Loading course…</p>
           </div>
         </main>
-      </div>
+      </AmuGradientShell>
     )
   }
 
   if (!course) {
     return (
-      <div className="learn-page">
+      <AmuGradientShell>
         <PortalHeader />
         <main className="portal-main portal-main--narrow">
           <div className="portal-empty">
@@ -72,7 +87,7 @@ export default function LearnPage() {
             </Link>
           </div>
         </main>
-      </div>
+      </AmuGradientShell>
     )
   }
 
@@ -82,7 +97,6 @@ export default function LearnPage() {
 }
 
 function LearnPageContent({ course, error }: { course: ApiCourse; error: string | null }) {
-  const enrolled = isEnrolled(course.id)
   const lessons = useMemo(
     () => [...course.lessons].sort((a, b) => a.sortOrder - b.sortOrder),
     [course.lessons],
@@ -98,7 +112,7 @@ function LearnPageContent({ course, error }: { course: ApiCourse; error: string 
 
   if (lessons.length === 0) {
     return (
-      <div className="learn-page">
+      <AmuGradientShell>
         <PortalHeader subtitle={course.title} />
         <main className="portal-main portal-main--narrow">
           <div className="portal-empty">
@@ -109,7 +123,7 @@ function LearnPageContent({ course, error }: { course: ApiCourse; error: string 
             </Link>
           </div>
         </main>
-      </div>
+      </AmuGradientShell>
     )
   }
 
@@ -119,28 +133,27 @@ function LearnPageContent({ course, error }: { course: ApiCourse; error: string 
   const progressPercent = Math.round((completedCount / lessons.length) * 100)
   const isActiveComplete = completedLessons.has(activeLesson.id)
   const nextLesson = lessons[activeIndex + 1]
-  const showVideoPlaceholder = !activeLesson.videoUid
+  const showStreamVideo = canPlayStreamLesson(activeLesson)
+  const showProcessingMessage = isStreamVideoProcessing(activeLesson.videoStatus) &&
+    activeLesson.videoProvider === 'cloudflare_stream' &&
+    Boolean(activeLesson.videoUid)
+  const showVideoError =
+    activeLesson.videoStatus === 'error' &&
+    activeLesson.videoProvider === 'cloudflare_stream' &&
+    Boolean(activeLesson.videoUid)
 
   function handleMarkComplete() {
     setCompletedLessons((prev) => new Set(prev).add(activeLesson.id))
   }
 
   function handleNextLesson() {
-    if (nextLesson && isLessonUnlocked(nextLesson.id)) {
+    if (nextLesson) {
       setActiveLessonId(nextLesson.id)
     }
   }
 
-  function isLessonUnlocked(lessonId: string) {
-    const index = lessons.findIndex((l) => l.id === lessonId)
-    if (index <= 0) return true
-    if (completedLessons.has(lessonId)) return true
-    const previousId = lessons[index - 1]!.id
-    return completedLessons.has(previousId)
-  }
-
   return (
-    <div className="learn-page">
+    <AmuGradientShell>
       <PortalHeader subtitle={course.title} />
 
       {error && (
@@ -149,22 +162,24 @@ function LearnPageContent({ course, error }: { course: ApiCourse; error: string 
         </p>
       )}
 
-      {!enrolled && (
-        <div className="learn-demo-notice" role="status">
-          Demo access enabled for this prototype.
-        </div>
-      )}
-
       <div className="learn-body">
         <main className="learn-main">
           <div className="video-section">
             <div className="video-player">
-              {showVideoPlaceholder ? (
-                <VideoPlaceholder courseTitle={course.title} lesson={activeLesson} />
+              {showStreamVideo ? (
+                <iframe
+                  className="video-stream-iframe"
+                  src={`https://iframe.videodelivery.net/${activeLesson.videoUid}`}
+                  title={activeLesson.title}
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                  allowFullScreen
+                />
+              ) : showProcessingMessage ? (
+                <VideoProcessingPlaceholder lesson={activeLesson} />
+              ) : showVideoError ? (
+                <VideoErrorPlaceholder lesson={activeLesson} />
               ) : (
-                <div className="video-placeholder">
-                  <p className="lesson-platform-note">Video player will connect in a future release.</p>
-                </div>
+                <VideoPlaceholder courseTitle={course.title} lesson={activeLesson} />
               )}
             </div>
 
@@ -206,17 +221,12 @@ function LearnPageContent({ course, error }: { course: ApiCourse; error: string 
                     type="button"
                     className="btn btn-secondary"
                     onClick={handleNextLesson}
-                    disabled={!isLessonUnlocked(nextLesson.id)}
                   >
                     Next lesson
                     <ChevronRight size={18} aria-hidden="true" />
                   </button>
                 )}
               </div>
-
-              <p className="lesson-platform-note">
-                Full video hosting and payment access will be connected later.
-              </p>
 
               {activeLesson.notes && (
                 <section className="lesson-notes" aria-labelledby="notes-heading">
@@ -261,22 +271,18 @@ function LearnPageContent({ course, error }: { course: ApiCourse; error: string 
               {lessons.map((lesson) => {
                 const isActive = lesson.id === activeLesson.id
                 const isComplete = completedLessons.has(lesson.id)
-                const isLocked = !isLessonUnlocked(lesson.id)
 
                 return (
                   <li key={lesson.id}>
                     <button
                       type="button"
-                      className={`lesson-item ${isActive ? 'lesson-item--active' : ''} ${isComplete ? 'lesson-item--complete' : ''} ${isLocked ? 'lesson-item--locked' : ''}`}
-                      onClick={() => !isLocked && setActiveLessonId(lesson.id)}
-                      disabled={isLocked}
+                      className={`lesson-item ${isActive ? 'lesson-item--active' : ''} ${isComplete ? 'lesson-item--complete' : ''}`}
+                      onClick={() => setActiveLessonId(lesson.id)}
                       aria-current={isActive ? 'true' : undefined}
                     >
                       <span className="lesson-item-status" aria-hidden="true">
                         {isComplete ? (
                           <CheckCircle2 size={18} className="lesson-status-icon lesson-status-icon--done" />
-                        ) : isLocked ? (
-                          <Lock size={16} className="lesson-status-icon lesson-status-icon--locked" />
                         ) : (
                           <span className="lesson-status-num">{lesson.sortOrder}</span>
                         )}
@@ -296,7 +302,7 @@ function LearnPageContent({ course, error }: { course: ApiCourse; error: string 
           </div>
         </aside>
       </div>
-    </div>
+    </AmuGradientShell>
   )
 }
 
@@ -312,6 +318,40 @@ function VideoPlaceholder({ courseTitle, lesson }: { courseTitle: string; lesson
         </button>
       </div>
 
+      <div className="video-overlay-bottom">
+        <span className="video-overlay-lesson">Lesson {lesson.sortOrder}</span>
+        <h2 className="video-overlay-title">{lesson.title}</h2>
+      </div>
+    </div>
+  )
+}
+
+function VideoProcessingPlaceholder({ lesson }: { lesson: ApiLesson }) {
+  return (
+    <div className="video-placeholder video-placeholder--processing">
+      <span className="video-duration-badge">{lesson.duration}</span>
+      <div className="video-placeholder-center">
+        <p className="video-processing-message">
+          Video uploaded and processing. Please check back shortly.
+        </p>
+      </div>
+      <div className="video-overlay-bottom">
+        <span className="video-overlay-lesson">Lesson {lesson.sortOrder}</span>
+        <h2 className="video-overlay-title">{lesson.title}</h2>
+      </div>
+    </div>
+  )
+}
+
+function VideoErrorPlaceholder({ lesson }: { lesson: ApiLesson }) {
+  return (
+    <div className="video-placeholder video-placeholder--error">
+      <span className="video-duration-badge">{lesson.duration}</span>
+      <div className="video-placeholder-center">
+        <p className="video-processing-message">
+          This lesson video could not be processed. Please contact support.
+        </p>
+      </div>
       <div className="video-overlay-bottom">
         <span className="video-overlay-lesson">Lesson {lesson.sortOrder}</span>
         <h2 className="video-overlay-title">{lesson.title}</h2>

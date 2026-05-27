@@ -4,8 +4,8 @@ import { createClient } from '@supabase/supabase-js'
 import { seedCourses } from '../src/seed'
 import { parseDurationSeconds } from '../src/db/utils'
 
-function loadDevVars(): Record<string, string> {
-  const path = resolve(process.cwd(), '.dev.vars')
+function loadDotEnv(): Record<string, string> {
+  const path = resolve(process.cwd(), '.env')
   if (!existsSync(path)) return {}
 
   const vars: Record<string, string> = {}
@@ -22,15 +22,15 @@ function loadDevVars(): Record<string, string> {
 function requireEnv(name: string, vars: Record<string, string>): string {
   const value = process.env[name] ?? vars[name]
   if (!value) {
-    throw new Error(`Missing ${name}. Set it in backend/.dev.vars or the environment.`)
+    throw new Error(`Missing ${name}. Set it in backend/.env or the environment.`)
   }
   return value
 }
 
 async function main() {
-  const devVars = loadDevVars()
-  const url = requireEnv('SUPABASE_URL', devVars)
-  const serviceRoleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY', devVars)
+  const dotEnv = loadDotEnv()
+  const url = requireEnv('SUPABASE_URL', dotEnv)
+  const serviceRoleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY', dotEnv)
 
   const supabase = createClient(url, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },

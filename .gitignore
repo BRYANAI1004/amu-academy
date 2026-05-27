@@ -17,11 +17,16 @@ dist-ssr
 .env
 .env.*
 !.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
 backend/.dev.vars
+backend/.dev.vars.*
 
 # Cloudflare
 .wrangler
 .dev.vars
+.dev.vars.*
 
 # Editor directories and files
 .vscode/*
@@ -45,9 +50,14 @@ backend/dist/
 # env / secrets
 .env
 .env.*
+!.env.example
 .dev.vars
 .dev.vars.*
+backend/.env
+backend/.env.*
+!backend/.env.example
 backend/.dev.vars
+backend/.dev.vars.*
 frontend/.env.local
 
 # local worker/cache

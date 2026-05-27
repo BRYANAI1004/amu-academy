@@ -5,12 +5,14 @@ export interface DbCourse {
   category: string
   description: string | null
   short_description: string | null
+  instructor: string | null
   overview: string | null
   what_you_learn: string[] | null
   price_cents: number
   currency: string
   status: string
   lesson_count: number
+  cover_image_url: string | null
   created_at: string
   updated_at: string
 }
@@ -38,11 +40,31 @@ export interface DbCourseInsert {
   category: string
   description?: string | null
   short_description?: string | null
+  instructor?: string | null
   overview?: string | null
   what_you_learn?: string[]
   price_cents: number
   currency?: string
   status: string
+}
+
+export interface DbCategory {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface DbCategoryInsert {
+  name: string
+  slug: string
+  description?: string | null
+  sort_order?: number
+  is_active?: boolean
 }
 
 export interface DbLessonInsert {

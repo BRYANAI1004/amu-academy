@@ -1,9 +1,10 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { BookOpen, GraduationCap, LayoutDashboard, LogOut } from 'lucide-react'
+import { BookOpen, GraduationCap, LayoutDashboard, LogOut, Tags } from 'lucide-react'
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/admin/courses', label: 'Courses', icon: BookOpen },
+  { to: '/admin/categories', label: 'Categories', icon: Tags },
 ]
 
 export default function AdminLayout() {

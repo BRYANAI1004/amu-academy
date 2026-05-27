@@ -1,12 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AdminCourseForm, { emptyCourseForm } from '../../components/AdminCourseForm'
-import { adminCreateCourse, courseFormToInput } from '../../lib/api'
+import {
+  adminCreateCourse,
+  courseFormToInput,
+  getCategories,
+  getCategoriesFallback,
+  type ApiCategory,
+} from '../../lib/api'
 
 export default function AdminCourseNewPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [categories, setCategories] = useState<ApiCategory[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+
+  useEffect(() => {
+    getCategories()
+      .then(setCategories)
+      .catch(() => setCategories(getCategoriesFallback()))
+      .finally(() => setCategoriesLoading(false))
+  }, [])
 
   async function handleSubmit(data: typeof emptyCourseForm) {
     setSaving(true)
@@ -39,13 +54,21 @@ export default function AdminCourseNewPage() {
       )}
 
       <div className="admin-panel">
-        <AdminCourseForm
-          initial={emptyCourseForm}
-          submitLabel={saving ? 'Creating…' : 'Create course'}
-          onSubmit={(data) => {
-            void handleSubmit(data)
-          }}
-        />
+        {categoriesLoading ? (
+          <p className="admin-empty-text">Loading categories…</p>
+        ) : (
+          <AdminCourseForm
+            initial={{
+              ...emptyCourseForm,
+              category: categories[0]?.name ?? emptyCourseForm.category,
+            }}
+            categories={categories}
+            submitLabel={saving ? 'Creating…' : 'Create course'}
+            onSubmit={(data) => {
+              void handleSubmit(data)
+            }}
+          />
+        )}
       </div>
     </div>
   )

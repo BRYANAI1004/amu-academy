@@ -1,15 +1,41 @@
-import { type FormEvent, useState } from 'react'
-import { CATEGORIES, type CourseCategory, type CourseStatus } from '../data/courses'
-import type { CourseFormData } from '../lib/api'
+import { useMemo, type FormEvent, useState } from 'react'
+import { type CourseStatus } from '../data/courses'
+import type { ApiCategory, CourseFormData } from '../lib/api'
 
 interface AdminCourseFormProps {
   initial: CourseFormData
+  categories: ApiCategory[]
   submitLabel: string
   onSubmit: (data: CourseFormData) => void
+  formId?: string
 }
 
-export default function AdminCourseForm({ initial, submitLabel, onSubmit }: AdminCourseFormProps) {
+export default function AdminCourseForm({
+  initial,
+  categories,
+  submitLabel,
+  onSubmit,
+  formId,
+}: AdminCourseFormProps) {
   const [form, setForm] = useState(initial)
+
+  const categoryOptions = useMemo(() => {
+    const active = categories.filter((category) => category.isActive)
+    const names = new Set(active.map((category) => category.name))
+    const options = active.map((category) => ({
+      value: category.name,
+      label: category.name,
+    }))
+
+    if (form.category && !names.has(form.category)) {
+      options.unshift({
+        value: form.category,
+        label: `Current: ${form.category}`,
+      })
+    }
+
+    return options
+  }, [categories, form.category])
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -17,7 +43,7 @@ export default function AdminCourseForm({ initial, submitLabel, onSubmit }: Admi
   }
 
   return (
-    <form className="admin-form" onSubmit={handleSubmit}>
+    <form id={formId} className="admin-form" onSubmit={handleSubmit}>
       <div className="admin-form__grid">
         <label className="admin-field admin-field--full">
           <span className="admin-field__label">Title</span>
@@ -36,6 +62,16 @@ export default function AdminCourseForm({ initial, submitLabel, onSubmit }: Admi
             value={form.shortDescription}
             onChange={(e) => setForm({ ...form, shortDescription: e.target.value })}
             required
+          />
+        </label>
+
+        <label className="admin-field admin-field--full">
+          <span className="admin-field__label">Instructor</span>
+          <input
+            className="admin-field__input"
+            value={form.instructor}
+            onChange={(e) => setForm({ ...form, instructor: e.target.value })}
+            placeholder="Instructor name"
           />
         </label>
 
@@ -66,11 +102,11 @@ export default function AdminCourseForm({ initial, submitLabel, onSubmit }: Admi
           <select
             className="admin-field__input"
             value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value as CourseCategory })}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
           >
-            {CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
+            {categoryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>
@@ -128,6 +164,7 @@ export default function AdminCourseForm({ initial, submitLabel, onSubmit }: Admi
 export const emptyCourseForm: CourseFormData = {
   title: '',
   shortDescription: '',
+  instructor: '',
   description: '',
   overview: '',
   category: 'Clinical Documentation',

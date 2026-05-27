@@ -14,25 +14,36 @@ Then seed the starter catalog:
 
 ```bash
 cd backend
-cp .dev.vars.example .dev.vars
+cp .env.example .env
 # Fill in SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (service role — backend only)
 npm run db:seed
 ```
+
+### Course cover images
+
+Course cover images are stored in Supabase Storage bucket **`course-covers`** (public). The backend creates this bucket automatically on first upload if it does not exist. You can also create it manually in the Supabase dashboard:
+
+- Bucket name: `course-covers`
+- Public: yes
+
+Apply the cover column migration (`20260527120000_add_course_cover_image.sql`) before using cover uploads.
 
 The seed script upserts courses by `slug` and lessons by `(course_id, sort_order)` so it is safe to re-run.
 
 ### Local backend
 
-Wrangler loads secrets from `backend/.dev.vars` during `npm restart`.
+Wrangler loads secrets from `backend/.env` during `npm restart`.
 
 ### Production deploy
 
 ```bash
 wrangler secret put SUPABASE_URL
 wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+wrangler secret put CLOUDFLARE_ACCOUNT_ID
+wrangler secret put CLOUDFLARE_STREAM_API_TOKEN
 ```
 
-Service role credentials belong only in backend `.dev.vars` / Wrangler secrets — never in the frontend.
+Service role and Stream credentials belong only in backend `.env` / Wrangler secrets — never in the frontend.
 
 ### Schema notes
 
