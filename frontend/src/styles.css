@@ -81,6 +81,7 @@
 
 html {
   width: 100%;
+  min-height: 100%;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -88,6 +89,7 @@ html {
 
 body {
   width: 100%;
+  min-height: 100%;
   font-family: var(--font-sans);
   color: var(--color-text);
   background: var(--color-bg);
@@ -98,6 +100,7 @@ body {
 
 #root {
   width: 100%;
+  min-height: 100%;
   min-height: 100dvh;
 }
 
@@ -2726,7 +2729,7 @@ a {
 
 .amu-gradient-page {
   position: relative;
-  overflow: hidden;
+  overflow-x: clip;
   isolation: isolate;
   background: #fff8ea;
 }
@@ -2802,7 +2805,11 @@ a {
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 254, 249, 0.9) 0%, transparent 55%),
     radial-gradient(ellipse 40% 30% at 100% 0%, rgba(242, 195, 0, 0.12) 0%, transparent 50%),
     linear-gradient(180deg, var(--color-bg-ivory) 0%, var(--color-bg-cream) 40%, var(--color-bg) 100%);
-  overflow-x: hidden;
+}
+
+.student-catalog-page {
+  width: 100%;
+  max-width: 100%;
 }
 
 .portal-header-logo-link {
@@ -2840,6 +2847,7 @@ a {
 
 .portal-main.course-catalog-content {
   max-width: 1440px;
+  min-width: 0;
 }
 
 .portal-main--narrow {
@@ -2976,6 +2984,7 @@ a {
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
+  min-width: 0;
 }
 
 .course-grid .course-card {
@@ -3463,12 +3472,47 @@ a {
     flex-shrink: 1;
   }
 
+  .student-catalog-page {
+    min-height: 100dvh;
+    overflow-x: clip;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .student-catalog-page .portal-header {
+    flex-shrink: 0;
+  }
+
+  .student-catalog-page .portal-header .learn-header-left {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .student-catalog-page .portal-header .learn-header-right {
+    flex-shrink: 0;
+    gap: 0.375rem;
+  }
+
+  .student-catalog-page .portal-header .learn-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 0.625rem;
+  }
+
   .portal-main,
   .portal-main.course-catalog-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     padding-left: 16px;
     padding-right: 16px;
     padding-top: 1.25rem;
-    padding-bottom: 2rem;
+    padding-bottom: 0;
+  }
+
+  .student-catalog-page .catalog-hero {
+    margin-bottom: 1.25rem;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .catalog-hero {
@@ -3484,6 +3528,18 @@ a {
     font-size: 0.9375rem;
   }
 
+  .student-catalog-page .catalog-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
   .catalog-filters {
     gap: 0.5rem;
     margin-bottom: 1.25rem;
@@ -3492,14 +3548,64 @@ a {
   .catalog-filter {
     font-size: 0.8125rem;
     padding: 0.5rem 0.875rem;
+    flex-shrink: 0;
+  }
+
+  .student-catalog-page .course-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    gap: 22px;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .course-grid {
+    grid-template-columns: 1fr;
     gap: 1.25rem;
+  }
+
+  .student-catalog-page .course-grid .course-card {
+    height: auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-bottom: 0;
+    overflow: hidden;
   }
 
   .course-card {
     border-radius: 18px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .student-catalog-page .course-card__cover-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .student-catalog-page .course-card__cover,
+  .student-catalog-page .course-card__cover-placeholder {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+  }
+
+  .student-catalog-page .course-card__body {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .student-catalog-page .course-card__btn {
+    width: 100%;
     max-width: 100%;
   }
 
@@ -3550,9 +3656,10 @@ a {
   }
 
   .portal-api-notice {
-    margin-left: 16px;
-    margin-right: 16px;
+    margin-left: 0;
+    margin-right: 0;
     max-width: none;
+    width: 100%;
   }
 }
 

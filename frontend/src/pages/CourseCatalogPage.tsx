@@ -50,7 +50,7 @@ export default function CourseCatalogPage() {
   }, [courses, activeCategory])
 
   return (
-    <div className="portal-page amu-gradient-page">
+    <div className="portal-page amu-gradient-page student-catalog-page">
       <div className="login-gradient-art" aria-hidden="true">
         <span className="login-blob login-blob--yellow" />
         <span className="login-blob login-blob--orange" />
