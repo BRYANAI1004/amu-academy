@@ -11,6 +11,7 @@ const DEMO_USER = {
 
 interface PortalHeaderProps {
   subtitle?: string
+  className?: string
 }
 
 function getInitials(name: string) {
@@ -22,7 +23,7 @@ function getInitials(name: string) {
     .toUpperCase()
 }
 
-export default function PortalHeader({ subtitle }: PortalHeaderProps) {
+export default function PortalHeader({ subtitle, className }: PortalHeaderProps) {
   const navigate = useNavigate()
   const user = getAuthUser() ?? DEMO_USER
 
@@ -32,7 +33,7 @@ export default function PortalHeader({ subtitle }: PortalHeaderProps) {
   }
 
   return (
-    <header className="learn-header portal-header">
+    <header className={['learn-header', 'portal-header', className].filter(Boolean).join(' ')}>
       <div className="learn-header-left">
         <Link to="/courses" className="portal-header-logo-link" aria-label="AMU Academy home">
           <img src="/AMULogo.png" alt="" className="portal-header-logo" />
