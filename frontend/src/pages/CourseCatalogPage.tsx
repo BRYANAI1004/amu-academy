@@ -4,28 +4,9 @@ import { BookOpen, UserRound } from 'lucide-react'
 import PortalHeader from '../components/PortalHeader'
 import { formatCoursePrice } from '../data/courses'
 import { getCategories, getCategoriesFallback, getCourses, getCoursesFallback, type ApiCategory, type ApiCourseSummary } from '../lib/api'
+import { useMobilePortalScrollLock } from '../lib/useMobilePortalScrollLock'
 
 type FilterCategory = string | 'All'
-
-const MOBILE_CATALOG_QUERY = '(max-width: 640px)'
-
-function useMobileCatalogScrollLock() {
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(MOBILE_CATALOG_QUERY)
-
-    function syncScrollLock() {
-      document.documentElement.classList.toggle('student-catalog-mobile', mediaQuery.matches)
-    }
-
-    syncScrollLock()
-    mediaQuery.addEventListener('change', syncScrollLock)
-
-    return () => {
-      mediaQuery.removeEventListener('change', syncScrollLock)
-      document.documentElement.classList.remove('student-catalog-mobile')
-    }
-  }, [])
-}
 
 export default function CourseCatalogPage() {
   const [activeCategory, setActiveCategory] = useState<FilterCategory>('All')
@@ -35,7 +16,7 @@ export default function CourseCatalogPage() {
   const [usedFallback, setUsedFallback] = useState(false)
   const [categories, setCategories] = useState<ApiCategory[]>([])
 
-  useMobileCatalogScrollLock()
+  useMobilePortalScrollLock()
 
   useEffect(() => {
     let cancelled = false
@@ -72,7 +53,7 @@ export default function CourseCatalogPage() {
   }, [courses, activeCategory])
 
   return (
-    <div className="portal-page amu-gradient-page student-catalog-page">
+    <div className="portal-page amu-gradient-page student-portal-page student-catalog-page">
       <div className="login-gradient-art" aria-hidden="true">
         <span className="login-blob login-blob--yellow" />
         <span className="login-blob login-blob--orange" />
@@ -84,7 +65,7 @@ export default function CourseCatalogPage() {
 
       <PortalHeader className="student-header" />
 
-      <main className="portal-main course-catalog-content student-catalog-main">
+      <main className="portal-main course-catalog-content student-catalog-main student-portal-shell">
         <div className="catalog-mobile-shell">
           <section className="catalog-hero">
             <h1 className="catalog-hero__title">Online Academy</h1>
@@ -126,7 +107,7 @@ export default function CourseCatalogPage() {
             ))}
           </div>
 
-          <div className="catalog-scroll-area">
+          <div className="catalog-scroll-area student-portal-scroll-area">
             {loading ? (
               <div className="portal-empty">
                 <p>Loading courses…</p>

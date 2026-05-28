@@ -2930,6 +2930,18 @@ a {
   width: 100%;
 }
 
+.student-portal-shell {
+  width: 100%;
+}
+
+.student-portal-scroll-area {
+  width: 100%;
+}
+
+.student-portal-footer {
+  display: none;
+}
+
 .catalog-filter {
   padding: 0.5rem 1rem;
   font-size: 0.8125rem;
@@ -3469,13 +3481,13 @@ a {
 }
 
 @media (max-width: 640px) {
-  html.student-catalog-mobile,
-  html.student-catalog-mobile body {
+  html.student-portal-mobile,
+  html.student-portal-mobile body {
     height: 100%;
     overflow: hidden;
   }
 
-  html.student-catalog-mobile #root {
+  html.student-portal-mobile #root {
     height: 100%;
     overflow: hidden;
   }
@@ -3493,7 +3505,10 @@ a {
     flex-shrink: 1;
   }
 
-  .student-catalog-page {
+  .student-portal-page,
+  .student-catalog-page,
+  .student-course-detail-page,
+  .student-learn-page {
     min-height: 100dvh;
     min-height: 100svh;
     height: 100dvh;
@@ -3506,32 +3521,65 @@ a {
     padding-bottom: 0;
   }
 
-  .student-catalog-page .student-header,
-  .student-catalog-page .portal-header {
+  .student-portal-page .student-header,
+  .student-portal-page .portal-header {
     flex-shrink: 0;
     position: relative;
     top: auto;
     z-index: 50;
   }
 
-  .student-catalog-page .student-header .learn-header-left,
-  .student-catalog-page .portal-header .learn-header-left {
+  .student-portal-page .student-header .learn-header-left,
+  .student-portal-page .portal-header .learn-header-left {
     min-width: 0;
     flex: 1 1 auto;
   }
 
-  .student-catalog-page .student-header .learn-header-right,
-  .student-catalog-page .portal-header .learn-header-right {
+  .student-portal-page .student-header .learn-header-right,
+  .student-portal-page .portal-header .learn-header-right {
     flex-shrink: 0;
     gap: 0.375rem;
   }
 
-  .student-catalog-page .student-header .learn-avatar,
-  .student-catalog-page .portal-header .learn-avatar {
+  .student-portal-page .student-header .learn-avatar,
+  .student-portal-page .portal-header .learn-avatar {
     width: 34px;
     height: 34px;
     font-size: 0.625rem;
   }
+
+  .student-portal-page .student-portal-shell {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .student-portal-page .student-portal-scroll-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .student-portal-page .student-portal-footer {
+    display: block;
+    flex-shrink: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(166, 25, 46, 0.08);
+    box-shadow: 0 -4px 24px rgba(80, 40, 20, 0.06);
+    z-index: 50;
+  }
+
+  /* ─── Catalog ─── */
 
   .student-catalog-page .portal-main,
   .student-catalog-page .portal-main.student-catalog-main,
@@ -3565,6 +3613,14 @@ a {
   .student-catalog-page .catalog-hero {
     margin-bottom: 1rem;
     padding: 1.25rem 16px 0;
+  }
+
+  .student-catalog-page .catalog-scroll-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   .catalog-hero {
@@ -3611,16 +3667,6 @@ a {
     flex-shrink: 0;
   }
 
-  .student-catalog-page .catalog-scroll-area {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
-    max-width: 100%;
-  }
-
   .student-catalog-page .course-grid,
   .student-catalog-page .student-course-grid {
     display: grid;
@@ -3650,6 +3696,111 @@ a {
     min-width: 0;
     margin-bottom: 0;
     overflow: hidden;
+  }
+
+  /* ─── Course detail ─── */
+
+  .student-course-detail-page .course-detail-shell {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .student-course-detail-page .portal-api-notice {
+    flex-shrink: 0;
+    margin: 0.75rem 16px 0;
+    max-width: none;
+    width: auto;
+  }
+
+  .student-course-detail-page .course-detail-scroll-area {
+    padding: 0;
+  }
+
+  .student-course-detail-page .course-detail-main {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 16px 16px 24px;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .student-course-detail-page .course-detail__panel--inline {
+    display: none;
+  }
+
+  .student-course-detail-page .course-detail-mobile-footer {
+    text-align: center;
+  }
+
+  .student-course-detail-page .course-detail-mobile-footer .course-detail__panel-price {
+    font-size: 1.375rem;
+    margin-bottom: 0.125rem;
+  }
+
+  .student-course-detail-page .course-detail-mobile-footer .course-detail__panel-meta {
+    margin-bottom: 0.75rem;
+  }
+
+  .student-course-detail-page .course-detail-mobile-footer .course-detail__back {
+    margin-top: 0.75rem;
+  }
+
+  /* ─── Learn ─── */
+
+  .student-learn-page .learn-portal-shell {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .student-learn-page .learn-api-notice {
+    flex-shrink: 0;
+    margin: 0.75rem 16px 0;
+    max-width: none;
+    width: auto;
+  }
+
+  .student-learn-page .learn-scroll-area {
+    padding: 0;
+  }
+
+  .student-learn-page .learn-body {
+    display: block;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 16px 24px;
+  }
+
+  .student-learn-page .learn-main {
+    padding: 12px 0 0;
+    min-width: 0;
+  }
+
+  .student-learn-page .learn-sidebar {
+    padding: 1rem 0 0;
+    min-width: 0;
+  }
+
+  .student-learn-page .lesson-actions--inline {
+    display: none;
+  }
+
+  .student-learn-page .learn-mobile-footer .lesson-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin: 0;
+  }
+
+  .student-learn-page .learn-mobile-footer .btn {
+    width: 100%;
   }
 
   .course-card {
